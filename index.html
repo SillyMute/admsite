@@ -3,109 +3,95 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin - SillyMute</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body { 
-    font-family: 'Quicksand', sans-serif; 
-    background: #1e1e2f; 
-    color: #f0f0f0; 
-    padding: 50px; 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+:root {
+    --bg-color: #1e1e2f;
+    --box-color: #2b2b3d;
+    --accent-color: #9f86c0;
+    --text-color: #f0f0f0;
+    --button-hover: #3a3a52;
 }
-.container {
+body {
+    font-family: 'Quicksand', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 50px;
+}
+h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+textarea {
     width: 100%;
-    max-width: 700px;
-}
-textarea { 
-    width: 100%; 
-    height: 200px; 
-    background: #2b2b3d; 
-    color: #f0f0f0; 
-    border: none; 
-    padding: 10px; 
-    border-radius: 8px; 
-    font-size: 16px; 
+    height: 300px;
+    background-color: var(--box-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 16px;
     resize: vertical;
 }
-button { 
-    margin-top: 20px; 
-    padding: 10px 20px; 
-    font-size: 16px; 
-    cursor: pointer; 
-    border-radius: 8px; 
-    border: none; 
-    background: #9f86c0; 
-    color: #1e1e2f; 
+button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    transition: background 0.3s;
 }
-button:hover { background: #b195d1; }
-.status {
-    margin-top: 15px;
-    font-size: 14px;
-    color: #ffd700;
+button:hover {
+    background-color: var(--button-hover);
 }
-.buttons {
-    display: flex;
-    gap: 10px;
+.nav-button {
+    background-color: var(--box-color);
+    color: var(--text-color);
+}
+.nav-button:hover {
+    background-color: var(--button-hover);
 }
 </style>
 </head>
 <body>
-<div class="container">
-    <h1>Edit Info Box Text</h1>
-    <textarea id="editor"></textarea>
-    <div class="buttons">
-        <button id="saveBtn">Save</button>
-        <button onclick="window.location.href='https://main.sillymute.pp.ua'">Go to Main Site</button>
-    </div>
-    <div class="status" id="status"></div>
-</div>
+<h1>Edit Main Site Info</h1>
+<textarea id="editor" placeholder="Loading..."></textarea>
+<br>
+<button onclick="saveText()">Save</button>
+<button class="nav-button" onclick="window.location.href='https://main.sillymute.pp.ua'">Go to Main Site</button>
 
 <script>
-const editor = document.getElementById("editor");
-const status = document.getElementById("status");
-const saveBtn = document.getElementById("saveBtn");
-
-// Load current text from the API
 async function loadText() {
     try {
         const res = await fetch("https://text-api.sillymute.pp.ua/info");
-        if (!res.ok) throw new Error("Failed to load current text");
-        editor.value = await res.text();
-        status.textContent = "Text loaded successfully.";
-        status.style.color = "#00ff00";
-    } catch(err) {
-        status.textContent = "⚠️ " + err.message;
-        status.style.color = "#ff4500";
+        if(res.ok){
+            document.getElementById("editor").value = await res.text();
+        } else {
+            document.getElementById("editor").value = "Failed to load text.";
+        }
+    } catch(err){
+        document.getElementById("editor").value = "Error: " + err;
     }
 }
 
-// Send updated text to the API
 async function saveText() {
-    const text = editor.value;
-    status.textContent = "Updating...";
-    status.style.color = "#ffd700";
+    const text = document.getElementById("editor").value;
     try {
         const res = await fetch("https://text-api.sillymute.pp.ua/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text })
         });
-        if(res.ok) {
-            status.textContent = "✅ Text updated successfully!";
-            status.style.color = "#00ff00";
-        } else {
-            const msg = await res.text();
-            status.textContent = "❌ Update failed: " + msg;
-            status.style.color = "#ff4500";
-        }
+        if(res.ok) alert("Text updated successfully!");
+        else alert("Failed: " + await res.text());
     } catch(err) {
-        status.textContent = "❌ Network error: " + err.message;
-        status.style.color = "#ff4500";
+        alert("Error: " + err);
     }
 }
 
-saveBtn.addEventListener("click", saveText);
 window.addEventListener("DOMContentLoaded", loadText);
 </script>
 </body>
